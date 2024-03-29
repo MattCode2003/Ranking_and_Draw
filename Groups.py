@@ -172,15 +172,15 @@ class GroupCreation:
             groups.append([])
 
         previous_group_number = 0
+        clash_moved_to = 1234567890
 
 
         for player in self.players:
-
             # need to get it to skip the group where it placed the clashed person
             # check the previous group
-            if group_length[previous_group_number] >= group_length[self.group_number]:
-                # dont check if the previous group is the same group (at one of the ends)
-                pass
+            if clash_moved_to == self.group_number:
+                clash_moved_to = 123456789
+                self.__change_group(number_of_groups)
 
             # if the current group is the same as the previous group then skip it
 
@@ -189,7 +189,8 @@ class GroupCreation:
             for player_in_group in groups[self.group_number]:
                     if player_in_group[2] == player[2]:
                         clash = True
-                        print(f"clash in group {self.group_number}")
+                        # print(f"There are {group_length[self.group_number]} players")
+                        # print(f"clash in group {self.group_number}")
                         break
 
 
@@ -213,7 +214,7 @@ class GroupCreation:
                         for player_in_group in groups[self.group_number]:
                             if player_in_group[2] == player[2]:
                                 clash_new_group = True
-                                print(f"clash in group {self.group_number}")
+                                # print(f"clash in group {self.group_number}")
 
                         if not clash_new_group:
                             groups[self.group_number].append(player)
@@ -223,11 +224,12 @@ class GroupCreation:
                             tries += 1
                             if tries == number_of_groups - 1:
                                 groups[original_group].append(player)
-                                group_length[self.group_number] += 1
+                                group_length[original_group] += 1
                                 break
                     else:
                         tries += 1
 
+                clash_moved_to = self.group_number
                 self.group_number = original_group
                 self.forward = original_forward
                 self.end = original_end
@@ -239,15 +241,16 @@ class GroupCreation:
                     previous_group_number = self.group_number
                     self.__change_group(number_of_groups)
 
+                # Adds the player to the group
                 groups[self.group_number].append(player)
                 group_length[self.group_number] += 1
                 previous_group_number = self.group_number
                 self.__change_group(number_of_groups)
 
 
-        for group in groups:
-            print(group)
-            print(len(group))
+        # for group in groups:
+        #     print(group)
+        #     print(len(group))
 
 
 
