@@ -171,8 +171,6 @@ class GroupCreation:
         for i in range(number_of_groups):
             groups.append([])
 
-        # Initializies seeds
-        seeds = True
 
         for player in self.players:
 
@@ -180,6 +178,9 @@ class GroupCreation:
             # work out what direction it is going in
             # check the previous group
             # dont check if the previous group is the same group (at one of the ends)
+            # if the current group is the same as the previous group then skip it
+
+            # need to go back to the original group after the clash has been sorted
 
 
             # Check if there is a county clash
