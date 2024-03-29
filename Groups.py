@@ -171,17 +171,18 @@ class GroupCreation:
         for i in range(number_of_groups):
             groups.append([])
 
+        previous_group_number = 0
+
 
         for player in self.players:
 
             # need to get it to skip the group where it placed the clashed person
-            # work out what direction it is going in
             # check the previous group
-            # dont check if the previous group is the same group (at one of the ends)
+            if group_length[previous_group_number] >= group_length[self.group_number]:
+                # dont check if the previous group is the same group (at one of the ends)
+                pass
+
             # if the current group is the same as the previous group then skip it
-
-            # need to go back to the original group after the clash has been sorted
-
 
             # Check if there is a county clash
             clash = False
@@ -200,7 +201,7 @@ class GroupCreation:
                 tries = 0
                 while clash:
                     # move to the next group
-                    self.__change_group(self.group_number, self.forward, self.end, number_of_groups)
+                    self.__change_group(number_of_groups)
                     if self.group_number == original_group:
                         continue
 
@@ -233,9 +234,15 @@ class GroupCreation:
 
 
             else:
+                # Makes sure the group isnt full
+                while (group_length[self.group_number] == max_group_size):
+                    previous_group_number = self.group_number
+                    self.__change_group(number_of_groups)
+
                 groups[self.group_number].append(player)
                 group_length[self.group_number] += 1
-                self.__change_group(self.group_number, self.forward, self.end, number_of_groups)
+                previous_group_number = self.group_number
+                self.__change_group(number_of_groups)
 
 
         for group in groups:
@@ -244,7 +251,7 @@ class GroupCreation:
 
 
 
-    def __change_group(self, group_number: int, forward: bool, end: bool, number_of_groups: int) -> int:
+    def __change_group(self, number_of_groups: int) -> int:
         '''
         Changes the group number in accordance with the snake method
         :param group_number: The current group number
@@ -255,28 +262,24 @@ class GroupCreation:
         :return: The next group number
         '''
         # change the group number
-        if forward:
-            if group_number == (number_of_groups - 1) and end == 2:
-                forward = False
-                group_number -= 1
-                end = 1
-            elif group_number == (number_of_groups - 1) and end == 1:
-                end = 2
+        if self.forward:
+            if self.group_number == (number_of_groups - 1) and self.end == 2:
+                self.forward = False
+                self.group_number -= 1
+                self.end = 1
+            elif self.group_number == (number_of_groups - 1) and self.end == 1:
+                self.end = 2
             else:
-                group_number += 1
+                self.group_number += 1
         else:
-            if group_number == 0 and end == 2:
-                forward = True
-                group_number += 1
-                end = 1
-            elif group_number == 0 and end == 1:
-                end = 2
+            if self.group_number == 0 and self.end == 2:
+                self.forward = True
+                self.group_number += 1
+                self.end = 1
+            elif self.group_number == 0 and self.end == 1:
+                self.end = 2
             else:
-                group_number -= 1
-
-        self.group_number = group_number
-        self.forward = forward
-        self.end = end
+                self.group_number -= 1
 
 
 
