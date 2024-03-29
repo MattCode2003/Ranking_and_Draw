@@ -9,6 +9,7 @@ Created on March 27, 2024
 
 import pandas as pd
 from openpyxl.workbook import Workbook
+from pandas.core.computation import align
 from sqlalchemy import create_engine, text
 from openpyxl import load_workbook
 import xlsxwriter
@@ -30,6 +31,9 @@ class GroupCreation:
         self.group_number = 0
         self.forward = True
         self.end = 1
+
+        # Writing to excel file stuff
+        self.row = 1
 
 
 
@@ -158,11 +162,12 @@ class GroupCreation:
 
 
 
-    def __create_groups(self, number_of_groups: int, max_group_size: int) -> None:
+    def __create_groups(self, number_of_groups: int, max_group_size: int) -> int:
         '''
         Creates the groups for the competition vai the sanke method
         :param number_of_groups: the number of groups
         :param max_group_size: the max size of a group
+        :returns: The largest group size
         '''
 
         # Initializies the groups
@@ -252,6 +257,8 @@ class GroupCreation:
         #     print(group)
         #     print(len(group))
 
+        return max(group_length)
+
 
 
     def __change_group(self, number_of_groups: int) -> int:
@@ -283,6 +290,31 @@ class GroupCreation:
                 self.end = 2
             else:
                 self.group_number -= 1
+
+
+
+    def __write_file(self, group_file: xlsxWorkbook, sheet: xlsxwriter.workbook.Worksheet, number_of_groups: int, largest_group_size: int) -> None:
+        '''
+        Writes the groups to the file
+        :param groups_file:
+        :return:
+        '''
+
+        # Creates the headings
+        heading_format = group_file.add_format({"bold": True, "border": 1, "top": 2, "align": "center"})
+        sheet.write_string(self.row, 0, "Date", cell_format=heading_format)
+        sheet.write_string(self.row, 1, "Event", cell_format=heading_format)
+        sheet.write_string(self.row, 2, "Group", cell_format=heading_format)
+
+        col = 3
+        for i in range(largest_group_size):
+            if self.player_numbers:
+                sheet.write_string(self.row, col, f"No{chr(i + 65)}", cell_format=heading_format)
+                col += 1
+            sheet.write_string(self.row, col, f"Cod{chr(i + 65)}", cell_format=heading_format)
+            col += 1
+            sheet.write_string(self.row, col, f"Player{chr(i + 65)}", cell_format=heading_format)
+            col += 1
 
 
 
@@ -319,7 +351,8 @@ class GroupCreation:
 
         groups = xlsxwriter.Workbook("output files/Groups.xlsx")
         sheet = groups.add_worksheet("Groups")
-        sheet.merge_range("A1:G1", f"{self.competition_name}")
+        sheet.merge_range("A1:G1", f"{self.competition_name}", cell_format=groups.add_format({'bold': True}))
+        sheet.write_string(1, 0, "test")
 
 
 
@@ -339,7 +372,8 @@ class GroupCreation:
             number_of_groups, max_group_size = self.__number_of_groups(prefered_group_size)
 
             # Create Groups
-            self.__create_groups(number_of_groups, max_group_size)
+            largest_group_size = self.__create_groups(number_of_groups, max_group_size)
+            self.__write_file(groups, sheet, number_of_groups, largest_group_size)
 
 
 
