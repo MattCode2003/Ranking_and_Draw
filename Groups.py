@@ -25,9 +25,11 @@ class GroupCreation:
         self.competition_name = ""
         self.player_numbers = False
         self.seeding_directory = "output files/seedings.xlsx"
+        self.date = ""
         self.players = []
 
         # create_groups stuff
+        self.groups = []
         self.group_number = 0
         self.forward = True
         self.end = 1
@@ -121,6 +123,7 @@ class GroupCreation:
 
     def __get_player_list(self, player_excel: Workbook, event: str) -> None:
         ws = player_excel[event]
+        self.players = []
 
         counter = 2
         while True:
@@ -147,18 +150,21 @@ class GroupCreation:
         '''
 
         number_of_players = len(self.players)
-        number_of_players = 37
+        #number_of_players = 37
 
         # Even number of people in each group
         if number_of_players % prefered_group_size == 0:
-            return number_of_players // prefered_group_size
+            return number_of_players // prefered_group_size, prefered_group_size
+
+        if (prefered_group_size) - (number_of_players % prefered_group_size) == 1:
+            return (number_of_players // prefered_group_size) + 1, prefered_group_size
 
         # Odd number of people in each group
         above_prefered_max = input("""It is not possible to have the same number of people in each group. Would you like to go above the prefered group size?: (y/n)""")
         if above_prefered_max.lower() == "y" or above_prefered_max.lower() == "yes":
             return number_of_players // prefered_group_size, prefered_group_size + 1
         else:
-            return number_of_players // prefered_group_size + 1, prefered_group_size
+            return (number_of_players // prefered_group_size) + 1, prefered_group_size
 
 
 
@@ -171,10 +177,11 @@ class GroupCreation:
         '''
 
         # Initializies the groups
-        groups = []
+        #self.group_number = 0
+        self.groups = []
         group_length = [0] * number_of_groups
         for i in range(number_of_groups):
-            groups.append([])
+            self.groups.append([])
 
         previous_group_number = 0
         clash_moved_to = 1234567890
@@ -191,7 +198,7 @@ class GroupCreation:
 
             # Check if there is a county clash
             clash = False
-            for player_in_group in groups[self.group_number]:
+            for player_in_group in self.groups[self.group_number]:
                     if player_in_group[2] == player[2]:
                         clash = True
                         # print(f"There are {group_length[self.group_number]} players")
@@ -212,24 +219,24 @@ class GroupCreation:
                         continue
 
                     # Makes sure that the next group isnt full
-                    if len(groups[self.group_number]) != max_group_size:
+                    if len(self.groups[self.group_number]) != max_group_size:
 
                         # Checks for clash in new group
                         clash_new_group = False
-                        for player_in_group in groups[self.group_number]:
+                        for player_in_group in self.groups[self.group_number]:
                             if player_in_group[2] == player[2]:
                                 clash_new_group = True
                                 # print(f"clash in group {self.group_number}")
 
                         if not clash_new_group:
-                            groups[self.group_number].append(player)
+                            self.groups[self.group_number].append(player)
                             group_length[self.group_number] += 1
                             break
                         else:
                             tries += 1
                             if tries == number_of_groups - 1:
-                                groups[original_group].append(player)
-                                group_length[original_group] += 1
+                                self.groups[original_group].append(player)
+                                self.group_length[original_group] += 1
                                 break
                     else:
                         tries += 1
@@ -247,7 +254,7 @@ class GroupCreation:
                     self.__change_group(number_of_groups)
 
                 # Adds the player to the group
-                groups[self.group_number].append(player)
+                self.groups[self.group_number].append(player)
                 group_length[self.group_number] += 1
                 previous_group_number = self.group_number
                 self.__change_group(number_of_groups)
@@ -293,15 +300,34 @@ class GroupCreation:
 
 
 
-    def __write_file(self, group_file: xlsxWorkbook, sheet: xlsxwriter.workbook.Worksheet, number_of_groups: int, largest_group_size: int) -> None:
+    def __write_file(self, group_file: xlsxWorkbook, sheet: xlsxwriter.workbook.Worksheet, number_of_groups: int, largest_group_size: int, event: str) -> None:
         '''
         Writes the groups to the file
         :param groups_file:
+        :param sheet:
+        :param number_of_groups:
+        :param largest_group_size:
+        :param event:
         :return:
         '''
+        # All the formats needed
+        heading_format = group_file.add_format({"bold": True, "border": 1, "top": 2, "align": "center", "valign": "vcenter"})
+        date_event_format = group_file.add_format({"bold": True, "border": 1, "valign": "vcenter"})
+        number_format = group_file.add_format({"bold": True, "border": 1, "align": "center", "valign": "vcenter"})
+        licence_number_format = group_file.add_format({"border": 1, "align": "center", "valign": "vcenter"})
+        player_name_format = group_file.add_format({"border": 1, "valign": "vcenter"})
+
+        date_event_last_group_format = group_file.add_format({"bold": True, "border": 1, "bottom": 2, "valign": "vcenter"})
+        number_last_group_format = group_file.add_format({"bold": True, "border": 1, "bottom": 2, "align": "center", "valign": "vcenter"})
+        licence_number_last_group_format = group_file.add_format({"border": 1, "bottom": 2, "align": "center", "valign": "vcenter"})
+        player_name_last_group_format = group_file.add_format({"border": 1, "bottom": 2, "valign": "vcenter"})
+        player_name_last_group_name_format = group_file.add_format({"border": 1, "bottom": 2, "right": 2, "valign": "vcenter"})
+        player_name_last_name_format = group_file.add_format({"border": 1, "right": 2, "valign": "vcenter"})
+
+        heading_end_format = group_file.add_format({"bold": True, "border": 1, "top": 2, "right": 2, "align": "center", "valign": "vcenter"})
 
         # Creates the headings
-        heading_format = group_file.add_format({"bold": True, "border": 1, "top": 2, "align": "center"})
+        sheet.set_row(self.row, 19.5)
         sheet.write_string(self.row, 0, "Date", cell_format=heading_format)
         sheet.write_string(self.row, 1, "Event", cell_format=heading_format)
         sheet.write_string(self.row, 2, "Group", cell_format=heading_format)
@@ -315,7 +341,69 @@ class GroupCreation:
             col += 1
             sheet.write_string(self.row, col, f"Player{chr(i + 65)}", cell_format=heading_format)
             col += 1
+            sheet.write_string(self.row, col, f"c{chr(i + 65)}", cell_format=heading_format if i + 1 != largest_group_size else heading_end_format)
+            col += 1
 
+        self.row += 1
+
+        # writes the date
+        sheet.write_string(self.row, 0, self.date, cell_format=date_event_format)
+
+        # writes the Groups
+        for i in range(number_of_groups):
+            if i  != 0:
+                sheet.write_string(self.row, 0, "", cell_format=player_name_format if i + 1 != number_of_groups else player_name_last_group_format)
+            sheet.write_string(self.row, 1, event, cell_format=date_event_format if i + 1 != number_of_groups else date_event_last_group_format)
+            sheet.write_number(self.row, 2, i + 1, cell_format=number_format if i + 1 != number_of_groups else number_last_group_format)
+            col = 3
+
+            player_count = 0
+            for player in self.groups[i]:
+                # writes the player number
+                if self.player_numbers:
+                    sheet.write_number(self.row, col, 1, cell_format=number_format if i + 1 != number_of_groups else number_last_group_format)
+                    col += 1
+
+                # writes the licence number
+                sheet.write_number(self.row, col, player[0], cell_format=licence_number_format if i + 1 != number_of_groups else licence_number_last_group_format)
+                col += 1
+
+                # writes player name
+                sheet.write_string(self.row, col, player[1], cell_format=player_name_format if i + 1 != number_of_groups else player_name_last_group_format)
+                col += 1
+                player_count += 1
+
+                # writes the county
+                if player_count == largest_group_size:
+                    format = player_name_last_name_format if i + 1 != number_of_groups else player_name_last_group_name_format
+                else:
+                    format = player_name_format if i + 1 != number_of_groups else player_name_last_group_format
+                sheet.write_string(self.row, col, player[2], cell_format=format)
+                col += 1
+
+            # fills in the blanks if needed
+            while player_count != largest_group_size:
+                if self.player_numbers:
+                    sheet.write_string(self.row, col, "", cell_format=number_format if i + 1 != number_of_groups else number_last_group_format)
+                    col += 1
+
+                sheet.write_string(self.row, col, "", cell_format=licence_number_format if i + 1 != number_of_groups else licence_number_last_group_format)
+                col += 1
+
+                sheet.write_string(self.row, col, "", cell_format=player_name_format if i + 1 != number_of_groups else player_name_last_group_format)
+                col += 1
+
+                if player_count == largest_group_size - 1:
+                    format = player_name_last_name_format if i + 1 != number_of_groups else player_name_last_group_name_format
+                else:
+                    format = player_name_format if i + 1 != number_of_groups else player_name_last_group_format
+                sheet.write_string(self.row, col, "", cell_format=format)
+                col += 1
+
+                player_count += 1
+
+            self.row += 1
+        self.row += 1
 
 
 
@@ -351,15 +439,16 @@ class GroupCreation:
 
         groups = xlsxwriter.Workbook("output files/Groups.xlsx")
         sheet = groups.add_worksheet("Groups")
-        sheet.merge_range("A1:G1", f"{self.competition_name}", cell_format=groups.add_format({'bold': True}))
-        sheet.write_string(1, 0, "test")
+        sheet.set_landscape()
+        sheet.merge_range("A1:G1", f"{self.competition_name}", cell_format=groups.add_format({'bold': True, "valign": "vcenter"}))
+        sheet.set_row(0, 19.5)
 
 
-
+        test = 0
         # Looks at all the sheets in the Excel file
         for idx, event in enumerate(events):
             # Date
-            date = self.__date()
+            self.date = self.__date()
 
             # Player info
             self.__get_player_list(player_excel, event)
@@ -373,10 +462,12 @@ class GroupCreation:
 
             # Create Groups
             largest_group_size = self.__create_groups(number_of_groups, max_group_size)
-            self.__write_file(groups, sheet, number_of_groups, largest_group_size)
+
+            # Writes groups to excel
+            self.__write_file(groups, sheet, number_of_groups, largest_group_size, event)
 
 
-
+        sheet.autofit()
         groups.close()
         player_excel.close()
 
