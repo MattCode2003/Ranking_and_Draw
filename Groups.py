@@ -420,6 +420,11 @@ class GroupCreation:
         :return:
         '''
 
+        try:
+            os.listdir("output files/group sheets")
+        except FileNotFoundError:
+            os.mkdir("output files/group sheets")
+
         # creates the event folder if not exists
         try:
             shutil.rmtree(f"output files/group sheets/{event}")
