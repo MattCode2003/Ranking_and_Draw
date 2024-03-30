@@ -53,22 +53,22 @@ class GroupCreation:
 
 
 
-    def __date(self) -> str:
+    def __date(self, event: str) -> str:
         '''
         Gets the date from the user and converts it to the full date
         :return: str
         '''
 
-        while true:
+        while True:
             date = input(f"What date is the {event} taking place? (DD/MM/YYYY): ")
             # date = "27/03/2024"
             self.short_date = date
-            day_number = int(date[0:2])
-            month = int(date[3:5])
-            year = int(date[-4:])
             try:
+                day_number = int(date[0:2])
+                month = int(date[3:5])
+                year = int(date[-4:])
                 date = datetime.datetime(int(date[-4:]), int(date[3:5]), int(date[0:2]))
-            except ValueError:
+            except Exception:
                 print("Error 4: Incorrect format entered. Please try again.")
             else:
                 break
@@ -522,7 +522,7 @@ class GroupCreation:
         # Looks at all the sheets in the Excel file
         for idx, event in enumerate(events):
             # Date
-            self.date = self.__date()
+            self.date = self.__date(event)
 
             # Player info
             self.__get_player_list(player_excel, event)
