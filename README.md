@@ -16,6 +16,7 @@ they will be deleted the next time it is used.
 
 ## Future Development
 In the future I am to add the following:
+- menu style start screen
 - Player Number Support
 - Desk Chart Creation
 - Support for a loosers bracket
