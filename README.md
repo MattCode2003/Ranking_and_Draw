@@ -1,4 +1,4 @@
-# Ranking and Draw System
+# Referee Helper
 ## Overview
 This is a ranking and draw system designed for table tennis competitions that are
 affiliated with Table Tennis England.
