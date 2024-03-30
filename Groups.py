@@ -156,7 +156,7 @@ class GroupCreation:
         if number_of_players % prefered_group_size == 0:
             return number_of_players // prefered_group_size, prefered_group_size
 
-        if (prefered_group_size) - (number_of_players % prefered_group_size) == 1:
+        if number_of_players // prefered_group_size == 1:
             return (number_of_players // prefered_group_size) + 1, prefered_group_size
 
         # Odd number of people in each group
@@ -300,7 +300,7 @@ class GroupCreation:
 
 
 
-    def __write_file(self, group_file: xlsxWorkbook, sheet: xlsxwriter.workbook.Worksheet, number_of_groups: int, largest_group_size: int, event: str) -> None:
+    def __write_excel(self, group_file: xlsxWorkbook, sheet: xlsxwriter.workbook.Worksheet, number_of_groups: int, largest_group_size: int, event: str) -> None:
         '''
         Writes the groups to the file
         :param groups_file:
@@ -464,7 +464,7 @@ class GroupCreation:
             largest_group_size = self.__create_groups(number_of_groups, max_group_size)
 
             # Writes groups to excel
-            self.__write_file(groups, sheet, number_of_groups, largest_group_size, event)
+            self.__write_excel(groups, sheet, number_of_groups, largest_group_size, event)
 
 
         sheet.autofit()
