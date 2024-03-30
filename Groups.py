@@ -17,7 +17,8 @@ from xlsxwriter.workbook import Workbook as xlsxWorkbook
 import os
 import time
 import datetime
-from docx import Document
+from docxtpl import DocxTemplate
+import shutil
 
 
 
@@ -38,6 +39,9 @@ class GroupCreation:
         # Writing to excel file stuff
         self.row = 1
 
+        # Group sheet stuff
+        self.short_date = ""
+
 
 
     def get_competition_name(self) -> str:
@@ -57,6 +61,7 @@ class GroupCreation:
 
         # date = input(f"What date is the {event} taking place? (DD/MM/YYYY): ")
         date = "27/03/2024"
+        self.short_date = date
         day_number = int(date[0:2])
         month = int(date[3:5])
         year = int(date[-4:])
@@ -408,8 +413,60 @@ class GroupCreation:
 
 
 
-    def __group_sheets(self) -> None:
-        pass
+    def __group_sheets(self, event: str) -> None:
+        '''
+        Creates the groups sheets
+        :param event:
+        :return:
+        '''
+
+        # creates the event folder if not exists
+        try:
+            shutil.rmtree(f"output files/group sheets/{event}")
+        except FileNotFoundError:
+            os.mkdir(f"output files/group sheets/{event}")
+        else:
+            os.mkdir(f"output files/group sheets/{event}")
+
+        # creates the sheets for all the groups in the event
+        for i, group in enumerate(self.groups):
+            group_size = len(self.groups[i])
+
+            # if self.player_numbers:
+            #     pass
+            # else:
+            #     shutil.copy(f"assets/group_sheets/{group_size}.docx", f"output files/group sheets/{event}/{i + 1}.docx")
+
+
+            # creates the keys for the dictionay
+            keys = ["competition_name", "event_name", "event_date", "group_number"]
+            for x in range(group_size):
+                if self.player_numbers:
+                    keys.append(f"player_number{chr(x + 65)}")
+                keys.append(f"cod{chr(x + 65)}")
+                keys.append(f"Player{chr(x + 65)}")
+                keys.append(f"c{chr(x + 65)}")
+
+            # puts the data into a single list
+            data = [self.competition_name, event, self.short_date, str(i + 1)]
+            for player in group:
+                if self.player_numbers:
+                    pass
+                data.append(player[0])
+                data.append(player[1])
+                data.append(player[2])
+
+            # creates the dictionary
+            dictionary = {}
+            for x, key in enumerate(keys):
+                dictionary[key] = data[x]
+
+            # edits the file accordingly
+            document = DocxTemplate(f"assets/group_sheets/{group_size}.docx")
+
+            document.render(dictionary)
+            document.save(f"output files/group sheets/{event}/{i + 1}.docx")
+
 
 
 
@@ -471,6 +528,7 @@ class GroupCreation:
 
             # Writes groups to excel
             self.__write_excel(groups, sheet, number_of_groups, largest_group_size, event)
+            self.__group_sheets(event)
 
 
         sheet.autofit()
