@@ -59,13 +59,19 @@ class GroupCreation:
         :return: str
         '''
 
-        # date = input(f"What date is the {event} taking place? (DD/MM/YYYY): ")
-        date = "27/03/2024"
-        self.short_date = date
-        day_number = int(date[0:2])
-        month = int(date[3:5])
-        year = int(date[-4:])
-        date = datetime.datetime(int(date[-4:]), int(date[3:5]), int(date[0:2]))
+        while true:
+            date = input(f"What date is the {event} taking place? (DD/MM/YYYY): ")
+            # date = "27/03/2024"
+            self.short_date = date
+            day_number = int(date[0:2])
+            month = int(date[3:5])
+            year = int(date[-4:])
+            try:
+                date = datetime.datetime(int(date[-4:]), int(date[3:5]), int(date[0:2]))
+            except ValueError:
+                print("Error 4: Incorrect format entered. Please try again.")
+            else:
+                break
 
         # day of the week
         day = date.weekday()
