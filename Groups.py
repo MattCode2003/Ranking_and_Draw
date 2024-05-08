@@ -20,6 +20,7 @@ import datetime
 from docxtpl import DocxTemplate
 import shutil
 
+from text_colour import bcolors
 
 
 class GroupCreation:
@@ -529,7 +530,7 @@ class GroupCreation:
 
             # Group size
             print(f"There are {len(self.players)} in this event")
-            prefered_group_size = int(input("Enter prefered group size: "))
+            prefered_group_size = int(input("Enter preferred group size: "))
 
             # Calculate number of groups
             number_of_groups, max_group_size = self.__number_of_groups(prefered_group_size)
