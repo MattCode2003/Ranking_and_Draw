@@ -25,14 +25,13 @@ class Main():
         print("")
         print("1: Get Player Ranking")
         print("2: Create Groups")
-        print("3: Create desk charts")
-        print("4: Exit")
+        print("3: Exit")
 
         try:
             user_input = int(input())
         except ValueError:
-            print(f"{bcolors.WARNING}Error: Please enter an integer from 1-4{bcolors.ENDC}")
-            print(self.menu())
+            print(f"{bcolors.WARNING}Error: Please enter an integer from 1-3{bcolors.ENDC}")
+            self.menu()
 
         match user_input:
             case 1:
@@ -40,9 +39,10 @@ class Main():
             case 2:
                 Groups.GroupCreation().main()
             case 3:
-                print("inop")
-            case 4:
                 exit(0)
+            case _:
+                print(f"{bcolors.WARNING}Error: Please enter an integer from 1-4{bcolors.ENDC}")
+                self.menu()
 
 
 if __name__ == "__main__":
