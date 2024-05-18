@@ -17,7 +17,8 @@ import xlsxwriter
 from xlsxwriter.workbook import Workbook as xlsxWorkbook
 import os
 import time
-from text_colour import bcolors
+from utils.text_colour import bcolors
+import main
 
 
 class RankingCollection:
@@ -25,9 +26,11 @@ class RankingCollection:
         self.player_directory = "input files/player_list.xlsx"
 
         ranking_directory = ""
-        for filename in os.listdir("input files"):
+        input_files_directory = str(os.path.join(os.getcwd(), "input files"))
+
+        for filename in os.listdir(os.path.join(os.getcwd(), "input files")):
             if "Alpha".lower() in filename.lower():
-                ranking_directory = f"input files/{filename}"
+                ranking_directory = f"{input_files_directory}\\{filename}"
         if ranking_directory == "":
             print(f"{bcolors.WARNING}Error code 1: Alpha list not Found{bcolors.ENDC}")
             time.sleep(3)
@@ -41,7 +44,7 @@ class RankingCollection:
 
         # Turns the County codes excel file into database stored in RAM
         try:
-            df = pd.read_excel("input files/[DONT EDIT] County_Codes.xlsx")
+            df = pd.read_excel("resources/County Codes.xlsx")
         except FileNotFoundError:
             print("Error code 2: County_Codes file not found")
             time.sleep(3)
@@ -242,6 +245,8 @@ class RankingCollection:
             os.makedirs(path)
         seedings.close()
         player_excel.close()
+
+        main.Main().menu()
 
 
 

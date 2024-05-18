@@ -6,11 +6,7 @@ Created on March 27, 2024
 #================================== Imports ===================================
 
 
-
-import pandas as pd
 from openpyxl.workbook import Workbook
-from pandas.core.computation import align
-from sqlalchemy import create_engine, text
 from openpyxl import load_workbook
 import xlsxwriter
 from xlsxwriter.workbook import Workbook as xlsxWorkbook
@@ -19,8 +15,8 @@ import time
 import datetime
 from docxtpl import DocxTemplate
 import shutil
-
-from text_colour import bcolors
+from utils.text_colour import bcolors
+import main
 
 
 class GroupCreation:
@@ -107,7 +103,7 @@ class GroupCreation:
             case 1:
                 month = "January"
             case 2:
-                month = "Febuary"
+                month = "February"
             case 3:
                 month = "March"
             case 4:
@@ -474,7 +470,7 @@ class GroupCreation:
                 dictionary[key] = data[x]
 
             # edits the file accordingly
-            document = DocxTemplate(f"assets/group_sheets/{group_size}.docx")
+            document = DocxTemplate(f"resources/group_sheets/{group_size}.docx")
 
             document.render(dictionary)
             document.save(f"output files/group sheets/{event}/{i + 1}.docx")
@@ -519,7 +515,6 @@ class GroupCreation:
         sheet.set_row(0, 19.5)
 
 
-        test = 0
         # Looks at all the sheets in the Excel file
         for idx, event in enumerate(events):
             # Date
@@ -546,6 +541,8 @@ class GroupCreation:
         sheet.autofit()
         groups.close()
         player_excel.close()
+
+        main.Main().menu()
 
 
 # player numbers
