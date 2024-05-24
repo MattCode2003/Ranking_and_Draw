@@ -195,6 +195,14 @@ class Controller:
                 for player in players:
                     player.append(self.__get_points(player[0], "Women", "Senior"))
 
+            case "senior mxs":
+                current_event = "Senior Mixed Singles"
+                for player in players:
+                    points = self.__get_points(player[0], "Men", "Senior")
+                    if points == 0:
+                        points = self.__get_points(player[0], "Women", "Senior")
+                    player.append(points)
+
             case "mens vets":
                 current_event = "Mens Vets Singles"
                 for player in players:
