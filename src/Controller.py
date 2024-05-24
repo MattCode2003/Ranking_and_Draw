@@ -29,7 +29,7 @@ class Controller:
         try:
             df = pd.read_excel("resources/County Codes.xlsx")
         except FileNotFoundError:
-            print("Error code 2: County_Codes file not found")
+            self.__get_view().error_message("Error 2: County_Codes file not found")
             time.sleep(3)
             exit(2)
         finally:
@@ -437,7 +437,6 @@ class Controller:
         for i in range(number_of_groups):
             groups.append([])
 
-        previous_group_number = 0
         self.__get_model().set_group_number(0)
         clash_moved_to = 1234567890
 
@@ -504,13 +503,11 @@ class Controller:
             else:
                 # Makes sure the group isnt full
                 while (group_length[self.__get_model().get_group_number()] == max_group_size):
-                    previous_group_number = self.__get_model().get_group_number()
                     self.__change_group(number_of_groups)
 
                 # Adds the player to the group
                 groups[self.__get_model().get_group_number()].append(player)
                 group_length[self.__get_model().get_group_number()] += 1
-                previous_group_number = self.__get_model().get_group_number()
                 self.__change_group(number_of_groups)
 
         self.__get_model().set_groups(groups)
