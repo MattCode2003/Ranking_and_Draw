@@ -29,7 +29,7 @@ class Controller:
         try:
             df = pd.read_excel("resources/County Codes.xlsx")
         except FileNotFoundError:
-            self.__get_view().error_message("Error 2: County_Codes file not found")
+            self.__get_view().error_message("Error 2: County Codes file not found")
             time.sleep(3)
             exit(2)
         finally:
@@ -174,6 +174,14 @@ class Controller:
                 current_event = "Under 19 Women"
                 for player in players:
                     player.append(self.__get_points(player[0], current_event, ""))
+
+            case "jnr mxs":
+                current_event = "Junior Mixed Singles"
+                for player in players:
+                    points = self.__get_points(player[0], "Under 19 Men", "")
+                    if points == 0:
+                        points = self.__get_points(player[0], "Under 19 Women", "")
+                    player.append(points)
 
             case "u21m":
                 current_event = "Under 21 Men"
@@ -449,74 +457,81 @@ class Controller:
         clash_moved_to = 1234567890
 
         players = self.__get_model().get_players()
-        for player in players:
-            # need to get it to skip the group where it placed the clashed person
-            # check the previous group
-            if clash_moved_to == self.__get_model().get_group_number():
-                clash_moved_to = 123456789
-                self.__change_group(number_of_groups)
 
-            # if the current group is the same as the previous group then skip it
-
-            # Check if there is a county clash
-            clash = False
-            for player_in_group in groups[self.__get_model().get_group_number()]:
-                if player_in_group[2] == player[2]:
-                    clash = True
-                    # print(f"There are {group_length[self.group_number]} players")
-                    # print(f"clash in group {self.group_number}")
-                    break
-
-            # Trys to change the group it is in when there is a clash
-            if clash:
-                original_group = self.__get_model().get_group_number()
-                original_forward = self.__get_model().get_forward()
-                original_end = self.__get_model().get_end()
-                tries = 0
-                while clash:
-                    # move to the next group
-                    self.__change_group(number_of_groups)
-                    if self.__get_model().get_group_number() == original_group:
-                        continue
-
-                    # Makes sure that the next group isn't full
-                    if len(groups[self.__get_model().get_group_number()]) != max_group_size:
-
-                        # Checks for clash in new group
-                        clash_new_group = False
-                        for player_in_group in groups[self.__get_model().get_group_number()]:
-                            if player_in_group[2] == player[2]:
-                                clash_new_group = True
-                                # print(f"clash in group {self.group_number}")
-
-                        if not clash_new_group:
-                            groups[self.__get_model().get_group_number()].append(player)
-                            group_length[self.__get_model().get_group_number()] += 1
-                            break
-                        else:
-                            tries += 1
-                            if tries == number_of_groups - 1:
-                                groups[original_group].append(player)
-                                group_length[original_group] += 1
-                                break
-                    else:
-                        tries += 1
-
-                clash_moved_to = self.__get_model().get_group_number()
-                self.__get_model().set_group_number(original_group)
-                self.__get_model().set_forward(original_forward)
-                self.__get_model().set_end(original_end)
-
-
-            else:
-                # Makes sure the group isnt full
-                while (group_length[self.__get_model().get_group_number()] == max_group_size):
-                    self.__change_group(number_of_groups)
-
-                # Adds the player to the group
+        if number_of_groups == 1:
+            for player in players:
                 groups[self.__get_model().get_group_number()].append(player)
                 group_length[self.__get_model().get_group_number()] += 1
-                self.__change_group(number_of_groups)
+
+        else:
+            for player in players:
+                # need to get it to skip the group where it placed the clashed person
+                # check the previous group
+                if clash_moved_to == self.__get_model().get_group_number():
+                    clash_moved_to = 123456789
+                    self.__change_group(number_of_groups)
+
+                # if the current group is the same as the previous group then skip it
+
+                # Check if there is a county clash
+                clash = False
+                for player_in_group in groups[self.__get_model().get_group_number()]:
+                    if player_in_group[2] == player[2]:
+                        clash = True
+                        # print(f"There are {group_length[self.group_number]} players")
+                        # print(f"clash in group {self.group_number}")
+                        break
+
+                # Trys to change the group it is in when there is a clash
+                if clash:
+                    original_group = self.__get_model().get_group_number()
+                    original_forward = self.__get_model().get_forward()
+                    original_end = self.__get_model().get_end()
+                    tries = 0
+                    while clash:
+                        # move to the next group
+                        self.__change_group(number_of_groups)
+                        if self.__get_model().get_group_number() == original_group:
+                            continue
+
+                        # Makes sure that the next group isn't full
+                        if len(groups[self.__get_model().get_group_number()]) != max_group_size:
+
+                            # Checks for clash in new group
+                            clash_new_group = False
+                            for player_in_group in groups[self.__get_model().get_group_number()]:
+                                if player_in_group[2] == player[2]:
+                                    clash_new_group = True
+                                    # print(f"clash in group {self.group_number}")
+
+                            if not clash_new_group:
+                                groups[self.__get_model().get_group_number()].append(player)
+                                group_length[self.__get_model().get_group_number()] += 1
+                                break
+                            else:
+                                tries += 1
+                                if tries == number_of_groups - 1:
+                                    groups[original_group].append(player)
+                                    group_length[original_group] += 1
+                                    break
+                        else:
+                            tries += 1
+
+                    clash_moved_to = self.__get_model().get_group_number()
+                    self.__get_model().set_group_number(original_group)
+                    self.__get_model().set_forward(original_forward)
+                    self.__get_model().set_end(original_end)
+
+
+                else:
+                    # Makes sure the group isnt full
+                    while (group_length[self.__get_model().get_group_number()] == max_group_size):
+                        self.__change_group(number_of_groups)
+
+                    # Adds the player to the group
+                    groups[self.__get_model().get_group_number()].append(player)
+                    group_length[self.__get_model().get_group_number()] += 1
+                    self.__change_group(number_of_groups)
 
         self.__get_model().set_groups(groups)
         return max(group_length)
